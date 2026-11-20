@@ -1,34 +1,421 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mc</title>
-    <style>
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: #fff;
-            text-align: center;
-        }
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-        p {
-            font-size: 1.25rem;
-            opacity: 0.9;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monte Carlo Forecasting Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a2230;
+    --panel-2: #222d40;
+    --border: #2d3b52;
+    --text: #e6edf3;
+    --muted: #93a1b5;
+    --accent: #4fc3f7;
+    --accent-2: #7c4dff;
+    --green: #4caf50;
+    --amber: #ffb300;
+    --red: #ef5350;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 800px at 20% -10%, #16202e 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 0.95rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin: 14px 0 6px; }
+  input[type="number"], input[type="date"] {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .range-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.72rem; margin-top: 4px; }
+  .scope-val { color: var(--accent); font-weight: 600; }
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    color: #fff;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); width: 100%; margin-top: 18px; padding: 13px; font-size: 1rem; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-add { background: var(--panel-2); border: 1px solid var(--border); }
+  .throughput-add { display: flex; gap: 8px; }
+  .throughput-add input { flex: 1; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 10px 5px 12px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip button { background: transparent; color: var(--muted); padding: 0; font-size: 1rem; line-height: 1; }
+  .chip button:hover { color: var(--red); }
+  .stats-row { display: flex; gap: 16px; color: var(--muted); font-size: 0.8rem; margin-top: 10px; flex-wrap: wrap; }
+  .stats-row b { color: var(--text); }
+  .trials-group { display: flex; gap: 8px; margin-top: 6px; }
+  .trials-group button { flex: 1; background: var(--panel-2); border: 1px solid var(--border); font-weight: 500; }
+  .trials-group button.active { background: var(--accent); color: #06121c; border-color: var(--accent); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .card .k { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .v { font-size: 1.5rem; font-weight: 700; margin: 6px 0 2px; }
+  .card .s { color: var(--muted); font-size: 0.8rem; }
+  .card.p85 { border-left: 3px solid var(--amber); }
+  .card.p95 { border-left: 3px solid var(--red); }
+  .card.p50 { border-left: 3px solid var(--green); }
+  .card.prob { border-left: 3px solid var(--accent); }
+  .section-title { font-size: 0.95rem; color: var(--muted); margin: 24px 0 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  canvas { width: 100%; height: auto; background: var(--panel-2); border-radius: 12px; border: 1px solid var(--border); }
+  .placeholder { color: var(--muted); text-align: center; padding: 60px 20px; }
+  .note { color: var(--muted); font-size: 0.78rem; margin-top: 14px; line-height: 1.5; }
+  .legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+</style>
 </head>
 <body>
-    <h1>Witaj na stronie mc!</h1>
-    <p>Opublikowano przez GitHub Pages.</p>
+  <h1>🎲 Monte Carlo Forecasting</h1>
+  <p class="subtitle">Prognozowanie ukończenia backlogu na podstawie historycznego tempa dostarczania (okresy 2-tygodniowe).</p>
+
+  <div class="grid">
+    <!-- ========== INPUTS ========== -->
+    <div class="panel">
+      <h2>⚙️ Parametry</h2>
+
+      <label for="backlog">Liczba elementów backlogu</label>
+      <input type="number" id="backlog" min="1" value="60">
+
+      <label for="scope">Przyrost zakresu: <span class="scope-val" id="scopeVal">0%</span></label>
+      <input type="range" id="scope" min="0" max="30" step="5" value="0">
+      <div class="range-scale">
+        <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span>
+      </div>
+
+      <label for="startDate">Data rozpoczęcia</label>
+      <input type="date" id="startDate">
+
+      <label for="targetDate">Data docelowa (ile ukończymy do...)</label>
+      <input type="date" id="targetDate">
+
+      <label>Liczba scenariuszy</label>
+      <div class="trials-group" id="trialsGroup">
+        <button data-trials="1000">1 000</button>
+        <button data-trials="5000">5 000</button>
+        <button data-trials="10000" class="active">10 000</button>
+      </div>
+
+      <button class="btn-primary" id="runBtn">▶ Uruchom symulację</button>
+
+      <div class="section-title" style="margin-top:24px;">Historyczne tempo dostarczania</div>
+      <p class="note" style="margin-top:0;">Liczba ukończonych elementów w kolejnych okresach 2-tygodniowych.</p>
+      <div class="throughput-add">
+        <input type="number" id="newThroughput" min="0" placeholder="np. 5">
+        <button class="btn-add" id="addThroughput">+ Dodaj</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="stats-row">
+        <span>Okresy: <b id="statCount">0</b></span>
+        <span>Średnia: <b id="statAvg">0</b></span>
+        <span>Min: <b id="statMin">0</b></span>
+        <span>Max: <b id="statMax">0</b></span>
+      </div>
+    </div>
+
+    <!-- ========== RESULTS ========== -->
+    <div class="panel">
+      <h2>📊 Wyniki prognozy</h2>
+      <div id="results">
+        <div class="placeholder">Ustaw parametry i kliknij „Uruchom symulację", aby zobaczyć prognozę.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  let throughput = [5, 4, 4, 5, 6, 4, 2, 3, 2, 5, 6];
+  let trials = 10000;
+
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- Date helpers ----------
+  function toISO(d) { return d.toISOString().slice(0, 10); }
+  function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+  function fmtDate(d) {
+    return d.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  // ---------- Init default dates ----------
+  const today = new Date();
+  $('startDate').value = toISO(today);
+  $('targetDate').value = toISO(addDays(today, 84)); // ~6 periods ahead
+
+  // ---------- Throughput UI ----------
+  function renderChips() {
+    const wrap = $('chips');
+    wrap.innerHTML = '';
+    throughput.forEach((v, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span>${v}</span>`;
+      const btn = document.createElement('button');
+      btn.textContent = '×';
+      btn.title = 'Usuń';
+      btn.onclick = () => { throughput.splice(i, 1); renderChips(); };
+      chip.appendChild(btn);
+      wrap.appendChild(chip);
+    });
+    const n = throughput.length;
+    const sum = throughput.reduce((a, b) => a + b, 0);
+    $('statCount').textContent = n;
+    $('statAvg').textContent = n ? (sum / n).toFixed(1) : '0';
+    $('statMin').textContent = n ? Math.min(...throughput) : '0';
+    $('statMax').textContent = n ? Math.max(...throughput) : '0';
+  }
+
+  function addThroughput() {
+    const input = $('newThroughput');
+    const v = parseInt(input.value, 10);
+    if (!isNaN(v) && v >= 0) { throughput.push(v); input.value = ''; renderChips(); input.focus(); }
+  }
+  $('addThroughput').onclick = addThroughput;
+  $('newThroughput').addEventListener('keydown', (e) => { if (e.key === 'Enter') addThroughput(); });
+
+  // ---------- Scope slider ----------
+  $('scope').addEventListener('input', (e) => { $('scopeVal').textContent = e.target.value + '%'; });
+
+  // ---------- Trials selector ----------
+  $('trialsGroup').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      [...$('trialsGroup').children].forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      trials = parseInt(e.target.dataset.trials, 10);
+    }
+  });
+
+  // ---------- Monte Carlo ----------
+  function sample(arr) { return arr[(Math.random() * arr.length) | 0]; }
+
+  function percentile(sorted, p) {
+    if (!sorted.length) return 0;
+    const idx = Math.min(sorted.length - 1, Math.max(0, Math.round(p * (sorted.length - 1))));
+    return sorted[idx];
+  }
+
+  // How many periods to finish the backlog (+ random scope growth up to maxScope)
+  function simulateCompletion(backlog, maxScope, data, n) {
+    const results = new Array(n);
+    let capped = false;
+    for (let t = 0; t < n; t++) {
+      const scope = Math.random() * maxScope; // 0..maxScope fraction per trial
+      let remaining = Math.ceil(backlog * (1 + scope));
+      let periods = 0;
+      while (remaining > 0 && periods < 2000) { remaining -= sample(data); periods++; }
+      if (periods >= 2000) capped = true;
+      results[t] = periods;
+    }
+    results.sort((a, b) => a - b);
+    return { results, capped };
+  }
+
+  // Items completed within a fixed number of periods + probability of finishing backlog
+  function simulateByDate(backlog, maxScope, data, periods, n) {
+    const completed = new Array(n);
+    let finishedCount = 0;
+    for (let t = 0; t < n; t++) {
+      let done = 0;
+      for (let p = 0; p < periods; p++) done += sample(data);
+      completed[t] = done;
+      const target = Math.ceil(backlog * (1 + Math.random() * maxScope));
+      if (done >= target) finishedCount++;
+    }
+    completed.sort((a, b) => a - b);
+    return { completed, prob: finishedCount / n };
+  }
+
+  // ---------- Histogram ----------
+  function drawHistogram(canvas, periodsSorted, startDate, marks) {
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.clientWidth, H = 300;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+
+    const min = periodsSorted[0];
+    const max = periodsSorted[periodsSorted.length - 1];
+    const bins = {};
+    for (let p = min; p <= max; p++) bins[p] = 0;
+    periodsSorted.forEach(p => bins[p]++);
+    const keys = Object.keys(bins).map(Number);
+    const maxCount = Math.max(...keys.map(k => bins[k]));
+
+    const padL = 44, padR = 16, padT = 20, padB = 48;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const barW = plotW / keys.length;
+
+    // y grid
+    ctx.strokeStyle = '#2d3b52'; ctx.fillStyle = '#93a1b5'; ctx.font = '11px system-ui'; ctx.textAlign = 'right';
+    for (let g = 0; g <= 4; g++) {
+      const y = padT + plotH - (plotH * g / 4);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+      ctx.fillText(Math.round(maxCount * g / 4), padL - 6, y + 4);
+    }
+
+    // bars
+    keys.forEach((k, i) => {
+      const h = (bins[k] / maxCount) * plotH;
+      const x = padL + i * barW;
+      const y = padT + plotH - h;
+      ctx.fillStyle = 'rgba(79,195,247,0.55)';
+      ctx.fillRect(x + 1, y, Math.max(1, barW - 2), h);
+    });
+
+    // x labels (periods -> dates), sparse
+    ctx.fillStyle = '#93a1b5'; ctx.textAlign = 'center';
+    const step = Math.ceil(keys.length / 8);
+    keys.forEach((k, i) => {
+      if (i % step === 0) {
+        const x = padL + i * barW + barW / 2;
+        const d = addDays(startDate, k * 14);
+        ctx.fillText(k + 'o', x, H - padB + 16);
+        ctx.fillText(fmtDate(d).replace(/ \d{4}$/, ''), x, H - padB + 30);
+      }
+    });
+
+    // percentile markers
+    const markColors = { 50: '#4caf50', 85: '#ffb300', 95: '#ef5350' };
+    marks.forEach(m => {
+      const i = keys.indexOf(m.period);
+      if (i < 0) return;
+      const x = padL + i * barW + barW / 2;
+      ctx.strokeStyle = markColors[m.label]; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+      ctx.fillStyle = markColors[m.label]; ctx.textAlign = 'center'; ctx.font = 'bold 11px system-ui';
+      ctx.fillText(m.label + '%', x, padT - 6);
+    });
+    ctx.lineWidth = 1;
+  }
+
+  // ---------- Run ----------
+  function run() {
+    const backlog = parseInt($('backlog').value, 10);
+    const maxScope = parseInt($('scope').value, 10) / 100;
+    const startDate = new Date($('startDate').value);
+    const targetDate = new Date($('targetDate').value);
+
+    const resultsEl = $('results');
+
+    if (!throughput.length || throughput.every(v => v === 0)) {
+      resultsEl.innerHTML = '<div class="placeholder">Dodaj co najmniej jedną niezerową wartość historycznego tempa.</div>';
+      return;
+    }
+    if (isNaN(backlog) || backlog < 1) {
+      resultsEl.innerHTML = '<div class="placeholder">Podaj poprawną liczbę elementów backlogu.</div>';
+      return;
+    }
+
+    const { results, capped } = simulateCompletion(backlog, maxScope, throughput, trials);
+    const p50 = percentile(results, 0.50);
+    const p85 = percentile(results, 0.85);
+    const p95 = percentile(results, 0.95);
+
+    const d50 = addDays(startDate, p50 * 14);
+    const d85 = addDays(startDate, p85 * 14);
+    const d95 = addDays(startDate, p95 * 14);
+
+    // By target date
+    const periodsToTarget = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24) / 14);
+    let byDateHtml = '';
+    if (periodsToTarget > 0) {
+      const { completed, prob } = simulateByDate(backlog, maxScope, throughput, periodsToTarget, trials);
+      const at85 = percentile(completed, 0.15); // at least X with 85% confidence
+      const at95 = percentile(completed, 0.05); // at least X with 95% confidence
+      const median = percentile(completed, 0.50);
+      byDateHtml = `
+        <div class="section-title">Ile ukończymy do ${fmtDate(targetDate)} (${periodsToTarget} okr.)</div>
+        <div class="cards">
+          <div class="card p50"><div class="k">Prognoza (50%)</div><div class="v">${median}</div><div class="s">elementów (mediana)</div></div>
+          <div class="card p85"><div class="k">Co najmniej (85%)</div><div class="v">${at85}</div><div class="s">elementów</div></div>
+          <div class="card p95"><div class="k">Co najmniej (95%)</div><div class="v">${at95}</div><div class="s">elementów</div></div>
+          <div class="card prob"><div class="k">Szansa ukończenia całości</div><div class="v">${(prob * 100).toFixed(1)}%</div><div class="s">do daty docelowej</div></div>
+        </div>`;
+    } else {
+      byDateHtml = `<div class="section-title">Ile ukończymy do daty docelowej</div>
+        <div class="placeholder" style="padding:24px;">Data docelowa musi być co najmniej 2 tygodnie po dacie rozpoczęcia.</div>`;
+    }
+
+    resultsEl.innerHTML = `
+      <div class="section-title">Kiedy ukończymy całość (${backlog} elem.${maxScope > 0 ? ' + do ' + ($('scope').value) + '% zakresu' : ''})</div>
+      <div class="cards">
+        <div class="card p50"><div class="k">50% prawdopodobieństwa</div><div class="v">${fmtDate(d50)}</div><div class="s">${p50} okresów (${p50 * 2} tyg.)</div></div>
+        <div class="card p85"><div class="k">85% prawdopodobieństwa</div><div class="v">${fmtDate(d85)}</div><div class="s">${p85} okresów (${p85 * 2} tyg.)</div></div>
+        <div class="card p95"><div class="k">95% prawdopodobieństwa</div><div class="v">${fmtDate(d95)}</div><div class="s">${p95} okresów (${p95 * 2} tyg.)</div></div>
+      </div>
+      ${byDateHtml}
+      <div class="section-title">Rozkład terminu ukończenia (${trials.toLocaleString('pl-PL')} scenariuszy)</div>
+      <canvas id="hist"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:#4caf50"></span>50%</span>
+        <span><span class="dot" style="background:#ffb300"></span>85%</span>
+        <span><span class="dot" style="background:#ef5350"></span>95%</span>
+        <span>oś X: liczba okresów (2 tyg.) od daty rozpoczęcia</span>
+      </div>
+      ${capped ? '<p class="note" style="color:#ef5350;">Uwaga: niektóre scenariusze przekroczyły limit 2000 okresów — zweryfikuj dane tempa.</p>' : ''}
+      <p class="note">Metoda: bootstrap z historycznego tempa dostarczania. Przyrost zakresu losowany jednostajnie z przedziału 0–${$('scope').value}% w każdym scenariuszu. Wyższy percentyl = bardziej ostrożna (późniejsza) prognoza.</p>
+    `;
+
+    drawHistogram($('hist'), results, startDate, [
+      { label: 50, period: p50 },
+      { label: 85, period: p85 },
+      { label: 95, period: p95 }
+    ]);
+  }
+
+  $('runBtn').onclick = run;
+
+  // Initial render
+  renderChips();
+})();
+</script>
 </body>
 </html>
