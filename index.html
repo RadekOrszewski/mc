@@ -97,6 +97,16 @@
   .cal-wrap { max-height: 520px; overflow-y: auto; }
   .cal-wrap::-webkit-scrollbar { width: 8px; }
   .cal-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar input[type="text"] { width: auto; }
+  .scen-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .scen-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .scen-meta { display: flex; flex-direction: column; font-size: 0.85rem; overflow: hidden; }
+  .scen-meta b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scen-meta span { color: var(--muted); font-size: 0.72rem; }
+  .scen-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .scen-actions .btn-add { padding: 6px 10px; font-size: 0.8rem; }
 </style>
 </head>
 <body>
@@ -106,6 +116,12 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-backlog">📋 Backlog</button>
     <button class="tab-btn" data-tab="tab-epics">🏔️ Epiki (większe jednostki)</button>
+  </div>
+
+  <div class="toolbar">
+    <button id="secretBtn" class="btn-add">🔒 Hasło zespołu: <span id="secretStatus">brak</span></button>
+    <input type="text" id="authorName" placeholder="Twoje imię (autor)">
+    <span id="dbStatus" class="note" style="margin:0;"></span>
   </div>
 
   <!-- ============================================================ -->
@@ -144,6 +160,14 @@
         <span>Min: <b id="statMin">0</b></span>
         <span>Max: <b id="statMax">0</b></span>
       </div>
+
+      <div class="section-title" style="margin-top:24px;">💾 Scenariusze (wspólne)</div>
+      <div class="throughput-add">
+        <input type="text" id="bkScenName" placeholder="Nazwa scenariusza">
+        <button class="btn-add" id="bkSave">Zapisz</button>
+        <button class="btn-add" id="bkRefresh" title="Odśwież listę">⟳</button>
+      </div>
+      <div class="scen-list" id="bkScenList"></div>
     </div>
     <div class="panel">
       <h2>📊 Wyniki prognozy</h2>
@@ -192,6 +216,14 @@
         <button data-trials="10000" class="active">10 000</button>
       </div>
       <button class="btn-primary" id="runEpicBtn">▶ Uruchom symulację</button>
+
+      <div class="section-title" style="margin-top:24px;">💾 Scenariusze (wspólne)</div>
+      <div class="throughput-add">
+        <input type="text" id="epScenName" placeholder="Nazwa scenariusza">
+        <button class="btn-add" id="epSave">Zapisz</button>
+        <button class="btn-add" id="epRefresh" title="Odśwież listę">⟳</button>
+      </div>
+      <div class="scen-list" id="epScenList"></div>
     </div>
 
     <div class="panel">
@@ -211,6 +243,7 @@
   </div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
   "use strict";
@@ -616,6 +649,153 @@
   addEpicRow('Epik C', 10, 25, 25);
   renderEpicChips();
   buildCalendar();
+
+  /* ============================================================
+     SHARED SCENARIOS (Supabase)
+     ============================================================ */
+  const SB_URL = 'https://yozxllvznhhwxhoakwbz.supabase.co';
+  const SB_KEY = 'sb_publishable_94KnWwJ8btEg2kOo8uXPZQ_ML7RWRuP';
+  let sb = null;
+  try { sb = window.supabase.createClient(SB_URL, SB_KEY); } catch (e) { console.error('Supabase init failed', e); }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function setDbStatus(msg, isErr) {
+    const el = $('dbStatus');
+    el.textContent = msg;
+    el.style.color = isErr ? 'var(--red)' : 'var(--green)';
+  }
+  function updateSecretStatus() {
+    $('secretStatus').textContent = localStorage.getItem('mc_team_secret') ? 'ustawione' : 'brak';
+  }
+  function getSecret() {
+    let s = localStorage.getItem('mc_team_secret');
+    if (!s) {
+      s = window.prompt('Podaj hasło zespołu:');
+      if (s) { localStorage.setItem('mc_team_secret', s); updateSecretStatus(); }
+    }
+    return s;
+  }
+  $('secretBtn').onclick = () => {
+    const cur = localStorage.getItem('mc_team_secret') || '';
+    const s = window.prompt('Hasło zespołu (puste = wyczyść):', cur);
+    if (s === null) return;
+    if (s === '') localStorage.removeItem('mc_team_secret'); else localStorage.setItem('mc_team_secret', s);
+    updateSecretStatus();
+    setDbStatus('');
+  };
+  updateSecretStatus();
+  $('authorName').value = localStorage.getItem('mc_author') || '';
+  $('authorName').addEventListener('change', () => localStorage.setItem('mc_author', $('authorName').value));
+
+  // --- Serialize / apply: backlog ---
+  function serializeBacklog() {
+    return {
+      backlog: $('backlog').value, scope: $('scope').value,
+      startDate: $('startDate').value, targetDate: $('targetDate').value,
+      trials, throughput: throughput.slice()
+    };
+  }
+  function applyBacklog(p) {
+    $('backlog').value = p.backlog;
+    $('scope').value = p.scope; $('scopeVal').textContent = p.scope + '%';
+    if (p.startDate) $('startDate').value = p.startDate;
+    if (p.targetDate) $('targetDate').value = p.targetDate;
+    if (p.trials) { trials = p.trials; [...$('trialsGroup').children].forEach(b => b.classList.toggle('active', +b.dataset.trials === trials)); }
+    throughput = (p.throughput || []).slice(); renderChips();
+    runBacklog();
+  }
+  // --- Serialize / apply: epics ---
+  function serializeEpics() {
+    const cal = { avail: [], cap: [] };
+    $('calRows').querySelectorAll('tr').forEach(tr => {
+      cal.avail.push(parseInt(tr.querySelector('.cal-avail').value, 10));
+      cal.cap.push(parseInt(tr.querySelector('.cal-cap').value, 10));
+    });
+    return {
+      epics: readEpics(), epicThroughput: epicThroughput.slice(),
+      epicPeriodWeeks, epicStartDate: $('epicStartDate').value, epicTrials, calendar: cal
+    };
+  }
+  function applyEpics(p) {
+    $('epicRows').innerHTML = '';
+    (p.epics || []).forEach(e => addEpicRow(e.name, e.min, e.max, e.fam));
+    epicThroughput = (p.epicThroughput || []).slice(); renderEpicChips();
+    if (p.epicPeriodWeeks) { epicPeriodWeeks = p.epicPeriodWeeks; [...$('periodGroup').children].forEach(b => b.classList.toggle('active', +b.dataset.weeks === epicPeriodWeeks)); }
+    if (p.epicStartDate) $('epicStartDate').value = p.epicStartDate;
+    if (p.epicTrials) { epicTrials = p.epicTrials; [...$('epicTrialsGroup').children].forEach(b => b.classList.toggle('active', +b.dataset.trials === epicTrials)); }
+    if (p.calendar) {
+      const rows = $('calRows').querySelectorAll('tr');
+      rows.forEach((tr, i) => {
+        if (p.calendar.avail && p.calendar.avail[i] != null) tr.querySelector('.cal-avail').value = p.calendar.avail[i];
+        if (p.calendar.cap && p.calendar.cap[i] != null) tr.querySelector('.cal-cap').value = p.calendar.cap[i];
+      });
+    }
+    runEpics();
+  }
+
+  // --- DB operations ---
+  async function saveScenario(tab, name, payload, afterSave) {
+    if (!sb) { setDbStatus('Brak połączenia z bazą.', true); return; }
+    if (!name) { setDbStatus('Podaj nazwę scenariusza.', true); return; }
+    const secret = getSecret(); if (!secret) { setDbStatus('Hasło zespołu jest wymagane.', true); return; }
+    setDbStatus('Zapisywanie…');
+    const { error } = await sb.rpc('save_scenario', {
+      p_secret: secret, p_tab: tab, p_name: name,
+      p_author: ($('authorName').value || null), p_payload: payload
+    });
+    if (error) { setDbStatus('Błąd zapisu: ' + error.message, true); return; }
+    setDbStatus('Zapisano ✓');
+    afterSave();
+  }
+  async function listScenarios(tab, container, applyFn) {
+    if (!sb) { container.innerHTML = '<div class="note">Brak połączenia z bazą.</div>'; return; }
+    const secret = getSecret(); if (!secret) { container.innerHTML = '<div class="note">Ustaw hasło zespołu, aby wczytać scenariusze.</div>'; return; }
+    container.innerHTML = '<div class="note">Ładowanie…</div>';
+    const { data, error } = await sb.rpc('list_scenarios', { p_secret: secret, p_tab: tab });
+    if (error) { container.innerHTML = '<div class="note" style="color:var(--red)">Błąd: ' + escapeHtml(error.message) + '</div>'; return; }
+    if (!data || !data.length) { container.innerHTML = '<div class="note">Brak zapisanych scenariuszy.</div>'; return; }
+    container.innerHTML = '';
+    data.forEach(row => {
+      const item = document.createElement('div');
+      item.className = 'scen-item';
+      const when = new Date(row.created_at).toLocaleString('pl-PL');
+      const meta = document.createElement('div');
+      meta.className = 'scen-meta';
+      meta.innerHTML = `<b>${escapeHtml(row.name)}</b><span>${row.author ? escapeHtml(row.author) + ' · ' : ''}${when}</span>`;
+      const actions = document.createElement('div');
+      actions.className = 'scen-actions';
+      const loadBtn = document.createElement('button');
+      loadBtn.className = 'btn-add'; loadBtn.textContent = 'Wczytaj';
+      loadBtn.onclick = () => { applyFn(row.payload); setDbStatus('Wczytano: ' + row.name); };
+      const delBtn = document.createElement('button');
+      delBtn.className = 'row-del'; delBtn.textContent = '×'; delBtn.title = 'Usuń';
+      delBtn.onclick = async () => {
+        if (!confirm('Usunąć scenariusz „' + row.name + '"?')) return;
+        const { error: delErr } = await sb.rpc('delete_scenario', { p_secret: secret, p_id: row.id });
+        if (delErr) { setDbStatus('Błąd usuwania: ' + delErr.message, true); return; }
+        listScenarios(tab, container, applyFn);
+      };
+      actions.appendChild(loadBtn); actions.appendChild(delBtn);
+      item.appendChild(meta); item.appendChild(actions);
+      container.appendChild(item);
+    });
+  }
+
+  const refreshBacklogList = () => listScenarios('backlog', $('bkScenList'), applyBacklog);
+  const refreshEpicList = () => listScenarios('epics', $('epScenList'), applyEpics);
+
+  $('bkSave').onclick = () => saveScenario('backlog', $('bkScenName').value.trim(), serializeBacklog(), refreshBacklogList);
+  $('bkRefresh').onclick = refreshBacklogList;
+  $('epSave').onclick = () => saveScenario('epics', $('epScenName').value.trim(), serializeEpics(), refreshEpicList);
+  $('epRefresh').onclick = refreshEpicList;
+
+  // Auto-load lists if secret already stored (no prompt)
+  if (localStorage.getItem('mc_team_secret')) {
+    refreshBacklogList();
+    refreshEpicList();
+  }
 })();
 </script>
 </body>
