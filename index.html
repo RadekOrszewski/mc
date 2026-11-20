@@ -28,73 +28,50 @@
     padding: 24px;
   }
   h1 { font-size: 1.7rem; margin: 0 0 4px; }
-  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 0.95rem; }
-  .grid {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 20px;
-    align-items: start;
+  .subtitle { color: var(--muted); margin: 0 0 20px; font-size: 0.95rem; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    cursor: pointer; background: transparent; border: none; color: var(--muted);
+    font-size: 0.95rem; font-weight: 600; padding: 12px 18px; border-bottom: 3px solid transparent;
   }
-  @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+  .grid-epics { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; align-items: start; }
+  @media (max-width: 920px) { .grid, .grid-epics { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .panel.full { margin-top: 20px; }
   .panel h2 { font-size: 1.05rem; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
   label { display: block; font-size: 0.85rem; color: var(--muted); margin: 14px 0 6px; }
-  input[type="number"], input[type="date"] {
-    width: 100%;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 0.95rem;
+  input[type="number"], input[type="date"], input[type="text"], select {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 10px 12px; font-size: 0.95rem;
   }
+  select { cursor: pointer; }
   input[type="range"] { width: 100%; accent-color: var(--accent); }
   .range-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.72rem; margin-top: 4px; }
   .scope-val { color: var(--accent); font-weight: 600; }
-  button {
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 10px 16px;
-    color: #fff;
-  }
+  button { cursor: pointer; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; padding: 10px 16px; color: #fff; }
   .btn-primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); width: 100%; margin-top: 18px; padding: 13px; font-size: 1rem; }
   .btn-primary:hover { filter: brightness(1.1); }
   .btn-add { background: var(--panel-2); border: 1px solid var(--border); }
   .throughput-add { display: flex; gap: 8px; }
   .throughput-add input { flex: 1; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-  .chip {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 10px 5px 12px;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .chip { background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 10px 5px 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
   .chip button { background: transparent; color: var(--muted); padding: 0; font-size: 1rem; line-height: 1; }
   .chip button:hover { color: var(--red); }
   .stats-row { display: flex; gap: 16px; color: var(--muted); font-size: 0.8rem; margin-top: 10px; flex-wrap: wrap; }
   .stats-row b { color: var(--text); }
-  .trials-group { display: flex; gap: 8px; margin-top: 6px; }
-  .trials-group button { flex: 1; background: var(--panel-2); border: 1px solid var(--border); font-weight: 500; }
-  .trials-group button.active { background: var(--accent); color: #06121c; border-color: var(--accent); }
+  .trials-group, .toggle-group { display: flex; gap: 8px; margin-top: 6px; }
+  .trials-group button, .toggle-group button { flex: 1; background: var(--panel-2); border: 1px solid var(--border); font-weight: 500; }
+  .trials-group button.active, .toggle-group button.active { background: var(--accent); color: #06121c; border-color: var(--accent); }
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-  .card {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-  }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
   .card .k { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
   .card .v { font-size: 1.5rem; font-weight: 700; margin: 6px 0 2px; }
   .card .s { color: var(--muted); font-size: 0.8rem; }
@@ -109,41 +86,51 @@
   .legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  table.data { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  table.data th { text-align: left; color: var(--muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.4px; padding: 6px 6px; }
+  table.data td { padding: 4px 6px; }
+  table.data input, table.data select { padding: 7px 8px; font-size: 0.85rem; }
+  table.data .num { width: 70px; }
+  .row-del { background: transparent; color: var(--muted); padding: 4px 8px; font-size: 1.1rem; }
+  .row-del:hover { color: var(--red); }
+  .cal-wrap { max-height: 520px; overflow-y: auto; }
+  .cal-wrap::-webkit-scrollbar { width: 8px; }
+  .cal-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 </style>
 </head>
 <body>
   <h1>🎲 Monte Carlo Forecasting</h1>
-  <p class="subtitle">Prognozowanie ukończenia backlogu na podstawie historycznego tempa dostarczania (okresy 2-tygodniowe).</p>
+  <p class="subtitle">Prognozowanie ukończenia pracy metodą Monte Carlo na podstawie historycznego tempa dostarczania.</p>
 
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tab-backlog">📋 Backlog</button>
+    <button class="tab-btn" data-tab="tab-epics">🏔️ Epiki (większe jednostki)</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: BACKLOG -->
+  <!-- ============================================================ -->
+  <div id="tab-backlog" class="tab-content active">
   <div class="grid">
-    <!-- ========== INPUTS ========== -->
     <div class="panel">
       <h2>⚙️ Parametry</h2>
-
       <label for="backlog">Liczba elementów backlogu</label>
       <input type="number" id="backlog" min="1" value="60">
-
       <label for="scope">Przyrost zakresu: <span class="scope-val" id="scopeVal">0%</span></label>
       <input type="range" id="scope" min="0" max="30" step="5" value="0">
-      <div class="range-scale">
-        <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span>
-      </div>
-
+      <div class="range-scale"><span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span></div>
       <label for="startDate">Data rozpoczęcia</label>
       <input type="date" id="startDate">
-
       <label for="targetDate">Data docelowa (ile ukończymy do...)</label>
       <input type="date" id="targetDate">
-
       <label>Liczba scenariuszy</label>
       <div class="trials-group" id="trialsGroup">
         <button data-trials="1000">1 000</button>
         <button data-trials="5000">5 000</button>
         <button data-trials="10000" class="active">10 000</button>
       </div>
-
       <button class="btn-primary" id="runBtn">▶ Uruchom symulację</button>
-
       <div class="section-title" style="margin-top:24px;">Historyczne tempo dostarczania</div>
       <p class="note" style="margin-top:0;">Liczba ukończonych elementów w kolejnych okresach 2-tygodniowych.</p>
       <div class="throughput-add">
@@ -158,171 +145,137 @@
         <span>Max: <b id="statMax">0</b></span>
       </div>
     </div>
-
-    <!-- ========== RESULTS ========== -->
     <div class="panel">
       <h2>📊 Wyniki prognozy</h2>
-      <div id="results">
-        <div class="placeholder">Ustaw parametry i kliknij „Uruchom symulację", aby zobaczyć prognozę.</div>
+      <div id="results"><div class="placeholder">Ustaw parametry i kliknij „Uruchom symulację", aby zobaczyć prognozę.</div></div>
+    </div>
+  </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: EPICS -->
+  <!-- ============================================================ -->
+  <div id="tab-epics" class="tab-content">
+  <div class="grid-epics">
+    <div class="panel">
+      <h2>🏔️ Epiki</h2>
+      <p class="note" style="margin-top:0;">Każdy epik rozbija się na elementy (zakres min–max). Stopień znajomości dodaje niepewność rozbicia (im niższy, tym więcej elementów może powstać).</p>
+      <table class="data">
+        <thead><tr><th>Nazwa</th><th>Min</th><th>Max</th><th>Znajomość</th><th></th></tr></thead>
+        <tbody id="epicRows"></tbody>
+      </table>
+      <button class="btn-add" id="addEpic" style="margin-top:10px;">+ Dodaj epik</button>
+
+      <div class="section-title">Tempo dostarczania (elementy epików / okres)</div>
+      <label>Długość okresu</label>
+      <div class="toggle-group" id="periodGroup">
+        <button data-weeks="1">1 tydzień</button>
+        <button data-weeks="2" class="active">2 tygodnie</button>
+      </div>
+      <div class="throughput-add" style="margin-top:12px;">
+        <input type="number" id="newEpicThroughput" min="0" placeholder="np. 3">
+        <button class="btn-add" id="addEpicThroughput">+ Dodaj</button>
+      </div>
+      <div class="chips" id="epicChips"></div>
+      <div class="stats-row">
+        <span>Okresy: <b id="epStatCount">0</b></span>
+        <span>Średnia: <b id="epStatAvg">0</b></span>
+      </div>
+
+      <label for="epicStartDate" style="margin-top:18px;">Data rozpoczęcia</label>
+      <input type="date" id="epicStartDate">
+
+      <label>Liczba scenariuszy</label>
+      <div class="trials-group" id="epicTrialsGroup">
+        <button data-trials="1000">1 000</button>
+        <button data-trials="5000">5 000</button>
+        <button data-trials="10000" class="active">10 000</button>
+      </div>
+      <button class="btn-primary" id="runEpicBtn">▶ Uruchom symulację</button>
+    </div>
+
+    <div class="panel">
+      <h2>📅 Kalendarz 12 miesięcy</h2>
+      <p class="note" style="margin-top:0;">Dostępność zespołu oraz capacity (np. urlopy, święta) skalują tempo dostarczania w danym miesiącu.</p>
+      <div class="cal-wrap">
+        <table class="data">
+          <thead><tr><th>Miesiąc</th><th>Dostępność</th><th>Capacity %</th></tr></thead>
+          <tbody id="calRows"></tbody>
+        </table>
       </div>
     </div>
+  </div>
+  <div class="panel full">
+    <h2>📊 Wyniki prognozy epików</h2>
+    <div id="epicResults"><div class="placeholder">Zdefiniuj epiki i kalendarz, a następnie kliknij „Uruchom symulację".</div></div>
+  </div>
   </div>
 
 <script>
 (function () {
   "use strict";
-
-  let throughput = [5, 4, 4, 5, 6, 4, 2, 3, 2, 5, 6];
-  let trials = 10000;
-
   const $ = (id) => document.getElementById(id);
 
-  // ---------- Date helpers ----------
+  // ---------- Shared helpers ----------
   function toISO(d) { return d.toISOString().slice(0, 10); }
   function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
-  function fmtDate(d) {
-    return d.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  // ---------- Init default dates ----------
-  const today = new Date();
-  $('startDate').value = toISO(today);
-  $('targetDate').value = toISO(addDays(today, 84)); // ~6 periods ahead
-
-  // ---------- Throughput UI ----------
-  function renderChips() {
-    const wrap = $('chips');
-    wrap.innerHTML = '';
-    throughput.forEach((v, i) => {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.innerHTML = `<span>${v}</span>`;
-      const btn = document.createElement('button');
-      btn.textContent = '×';
-      btn.title = 'Usuń';
-      btn.onclick = () => { throughput.splice(i, 1); renderChips(); };
-      chip.appendChild(btn);
-      wrap.appendChild(chip);
-    });
-    const n = throughput.length;
-    const sum = throughput.reduce((a, b) => a + b, 0);
-    $('statCount').textContent = n;
-    $('statAvg').textContent = n ? (sum / n).toFixed(1) : '0';
-    $('statMin').textContent = n ? Math.min(...throughput) : '0';
-    $('statMax').textContent = n ? Math.max(...throughput) : '0';
-  }
-
-  function addThroughput() {
-    const input = $('newThroughput');
-    const v = parseInt(input.value, 10);
-    if (!isNaN(v) && v >= 0) { throughput.push(v); input.value = ''; renderChips(); input.focus(); }
-  }
-  $('addThroughput').onclick = addThroughput;
-  $('newThroughput').addEventListener('keydown', (e) => { if (e.key === 'Enter') addThroughput(); });
-
-  // ---------- Scope slider ----------
-  $('scope').addEventListener('input', (e) => { $('scopeVal').textContent = e.target.value + '%'; });
-
-  // ---------- Trials selector ----------
-  $('trialsGroup').addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON') {
-      [...$('trialsGroup').children].forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      trials = parseInt(e.target.dataset.trials, 10);
-    }
-  });
-
-  // ---------- Monte Carlo ----------
+  function fmtDate(d) { return d.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', year: 'numeric' }); }
   function sample(arr) { return arr[(Math.random() * arr.length) | 0]; }
-
   function percentile(sorted, p) {
     if (!sorted.length) return 0;
     const idx = Math.min(sorted.length - 1, Math.max(0, Math.round(p * (sorted.length - 1))));
     return sorted[idx];
   }
 
-  // How many periods to finish the backlog (+ random scope growth up to maxScope)
-  function simulateCompletion(backlog, maxScope, data, n) {
-    const results = new Array(n);
-    let capped = false;
-    for (let t = 0; t < n; t++) {
-      const scope = Math.random() * maxScope; // 0..maxScope fraction per trial
-      let remaining = Math.ceil(backlog * (1 + scope));
-      let periods = 0;
-      while (remaining > 0 && periods < 2000) { remaining -= sample(data); periods++; }
-      if (periods >= 2000) capped = true;
-      results[t] = periods;
-    }
-    results.sort((a, b) => a - b);
-    return { results, capped };
-  }
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      $(b.dataset.tab).classList.add('active');
+    };
+  });
 
-  // Items completed within a fixed number of periods + probability of finishing backlog
-  function simulateByDate(backlog, maxScope, data, periods, n) {
-    const completed = new Array(n);
-    let finishedCount = 0;
-    for (let t = 0; t < n; t++) {
-      let done = 0;
-      for (let p = 0; p < periods; p++) done += sample(data);
-      completed[t] = done;
-      const target = Math.ceil(backlog * (1 + Math.random() * maxScope));
-      if (done >= target) finishedCount++;
-    }
-    completed.sort((a, b) => a - b);
-    return { completed, prob: finishedCount / n };
-  }
-
-  // ---------- Histogram ----------
-  function drawHistogram(canvas, periodsSorted, startDate, marks) {
+  // ---------- Generic histogram ----------
+  function drawHistogram(canvas, periodsSorted, startDate, marks, periodDays) {
     const dpr = window.devicePixelRatio || 1;
     const W = canvas.clientWidth, H = 300;
     canvas.width = W * dpr; canvas.height = H * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
-
-    const min = periodsSorted[0];
-    const max = periodsSorted[periodsSorted.length - 1];
+    const min = periodsSorted[0], max = periodsSorted[periodsSorted.length - 1];
     const bins = {};
     for (let p = min; p <= max; p++) bins[p] = 0;
     periodsSorted.forEach(p => bins[p]++);
     const keys = Object.keys(bins).map(Number);
     const maxCount = Math.max(...keys.map(k => bins[k]));
-
     const padL = 44, padR = 16, padT = 20, padB = 48;
     const plotW = W - padL - padR, plotH = H - padT - padB;
     const barW = plotW / keys.length;
-
-    // y grid
     ctx.strokeStyle = '#2d3b52'; ctx.fillStyle = '#93a1b5'; ctx.font = '11px system-ui'; ctx.textAlign = 'right';
     for (let g = 0; g <= 4; g++) {
       const y = padT + plotH - (plotH * g / 4);
       ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
       ctx.fillText(Math.round(maxCount * g / 4), padL - 6, y + 4);
     }
-
-    // bars
     keys.forEach((k, i) => {
       const h = (bins[k] / maxCount) * plotH;
-      const x = padL + i * barW;
-      const y = padT + plotH - h;
+      const x = padL + i * barW, y = padT + plotH - h;
       ctx.fillStyle = 'rgba(79,195,247,0.55)';
       ctx.fillRect(x + 1, y, Math.max(1, barW - 2), h);
     });
-
-    // x labels (periods -> dates), sparse
     ctx.fillStyle = '#93a1b5'; ctx.textAlign = 'center';
     const step = Math.ceil(keys.length / 8);
     keys.forEach((k, i) => {
       if (i % step === 0) {
         const x = padL + i * barW + barW / 2;
-        const d = addDays(startDate, k * 14);
+        const d = addDays(startDate, k * periodDays);
         ctx.fillText(k + 'o', x, H - padB + 16);
         ctx.fillText(fmtDate(d).replace(/ \d{4}$/, ''), x, H - padB + 30);
       }
     });
-
-    // percentile markers
     const markColors = { 50: '#4caf50', 85: '#ffb300', 95: '#ef5350' };
     marks.forEach(m => {
       const i = keys.indexOf(m.period);
@@ -336,41 +289,95 @@
     ctx.lineWidth = 1;
   }
 
-  // ---------- Run ----------
-  function run() {
+  /* ============================================================
+     TAB 1: BACKLOG
+     ============================================================ */
+  let throughput = [5, 4, 4, 5, 6, 4, 2, 3, 2, 5, 6];
+  let trials = 10000;
+
+  const today = new Date();
+  $('startDate').value = toISO(today);
+  $('targetDate').value = toISO(addDays(today, 84));
+
+  function renderChips() {
+    const wrap = $('chips');
+    wrap.innerHTML = '';
+    throughput.forEach((v, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span>${v}</span>`;
+      const btn = document.createElement('button');
+      btn.textContent = '×'; btn.title = 'Usuń';
+      btn.onclick = () => { throughput.splice(i, 1); renderChips(); };
+      chip.appendChild(btn);
+      wrap.appendChild(chip);
+    });
+    const n = throughput.length, sum = throughput.reduce((a, b) => a + b, 0);
+    $('statCount').textContent = n;
+    $('statAvg').textContent = n ? (sum / n).toFixed(1) : '0';
+    $('statMin').textContent = n ? Math.min(...throughput) : '0';
+    $('statMax').textContent = n ? Math.max(...throughput) : '0';
+  }
+  function addThroughput() {
+    const input = $('newThroughput'), v = parseInt(input.value, 10);
+    if (!isNaN(v) && v >= 0) { throughput.push(v); input.value = ''; renderChips(); input.focus(); }
+  }
+  $('addThroughput').onclick = addThroughput;
+  $('newThroughput').addEventListener('keydown', (e) => { if (e.key === 'Enter') addThroughput(); });
+  $('scope').addEventListener('input', (e) => { $('scopeVal').textContent = e.target.value + '%'; });
+  $('trialsGroup').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      [...$('trialsGroup').children].forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      trials = parseInt(e.target.dataset.trials, 10);
+    }
+  });
+
+  function simulateCompletion(backlog, maxScope, data, n) {
+    const results = new Array(n); let capped = false;
+    for (let t = 0; t < n; t++) {
+      const scope = Math.random() * maxScope;
+      let remaining = Math.ceil(backlog * (1 + scope)), periods = 0;
+      while (remaining > 0 && periods < 2000) { remaining -= sample(data); periods++; }
+      if (periods >= 2000) capped = true;
+      results[t] = periods;
+    }
+    results.sort((a, b) => a - b);
+    return { results, capped };
+  }
+  function simulateByDate(backlog, maxScope, data, periods, n) {
+    const completed = new Array(n); let finishedCount = 0;
+    for (let t = 0; t < n; t++) {
+      let done = 0;
+      for (let p = 0; p < periods; p++) done += sample(data);
+      completed[t] = done;
+      const target = Math.ceil(backlog * (1 + Math.random() * maxScope));
+      if (done >= target) finishedCount++;
+    }
+    completed.sort((a, b) => a - b);
+    return { completed, prob: finishedCount / n };
+  }
+
+  function runBacklog() {
     const backlog = parseInt($('backlog').value, 10);
     const maxScope = parseInt($('scope').value, 10) / 100;
     const startDate = new Date($('startDate').value);
     const targetDate = new Date($('targetDate').value);
-
     const resultsEl = $('results');
-
     if (!throughput.length || throughput.every(v => v === 0)) {
-      resultsEl.innerHTML = '<div class="placeholder">Dodaj co najmniej jedną niezerową wartość historycznego tempa.</div>';
-      return;
+      resultsEl.innerHTML = '<div class="placeholder">Dodaj co najmniej jedną niezerową wartość historycznego tempa.</div>'; return;
     }
     if (isNaN(backlog) || backlog < 1) {
-      resultsEl.innerHTML = '<div class="placeholder">Podaj poprawną liczbę elementów backlogu.</div>';
-      return;
+      resultsEl.innerHTML = '<div class="placeholder">Podaj poprawną liczbę elementów backlogu.</div>'; return;
     }
-
     const { results, capped } = simulateCompletion(backlog, maxScope, throughput, trials);
-    const p50 = percentile(results, 0.50);
-    const p85 = percentile(results, 0.85);
-    const p95 = percentile(results, 0.95);
-
-    const d50 = addDays(startDate, p50 * 14);
-    const d85 = addDays(startDate, p85 * 14);
-    const d95 = addDays(startDate, p95 * 14);
-
-    // By target date
+    const p50 = percentile(results, 0.50), p85 = percentile(results, 0.85), p95 = percentile(results, 0.95);
+    const d50 = addDays(startDate, p50 * 14), d85 = addDays(startDate, p85 * 14), d95 = addDays(startDate, p95 * 14);
     const periodsToTarget = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24) / 14);
     let byDateHtml = '';
     if (periodsToTarget > 0) {
       const { completed, prob } = simulateByDate(backlog, maxScope, throughput, periodsToTarget, trials);
-      const at85 = percentile(completed, 0.15); // at least X with 85% confidence
-      const at95 = percentile(completed, 0.05); // at least X with 95% confidence
-      const median = percentile(completed, 0.50);
+      const at85 = percentile(completed, 0.15), at95 = percentile(completed, 0.05), median = percentile(completed, 0.50);
       byDateHtml = `
         <div class="section-title">Ile ukończymy do ${fmtDate(targetDate)} (${periodsToTarget} okr.)</div>
         <div class="cards">
@@ -383,7 +390,6 @@
       byDateHtml = `<div class="section-title">Ile ukończymy do daty docelowej</div>
         <div class="placeholder" style="padding:24px;">Data docelowa musi być co najmniej 2 tygodnie po dacie rozpoczęcia.</div>`;
     }
-
     resultsEl.innerHTML = `
       <div class="section-title">Kiedy ukończymy całość (${backlog} elem.${maxScope > 0 ? ' + do ' + ($('scope').value) + '% zakresu' : ''})</div>
       <div class="cards">
@@ -401,20 +407,215 @@
         <span>oś X: liczba okresów (2 tyg.) od daty rozpoczęcia</span>
       </div>
       ${capped ? '<p class="note" style="color:#ef5350;">Uwaga: niektóre scenariusze przekroczyły limit 2000 okresów — zweryfikuj dane tempa.</p>' : ''}
-      <p class="note">Metoda: bootstrap z historycznego tempa dostarczania. Przyrost zakresu losowany jednostajnie z przedziału 0–${$('scope').value}% w każdym scenariuszu. Wyższy percentyl = bardziej ostrożna (późniejsza) prognoza.</p>
+      <p class="note">Metoda: bootstrap z historycznego tempa dostarczania. Przyrost zakresu losowany jednostajnie z przedziału 0–${$('scope').value}% w każdym scenariuszu.</p>
     `;
-
     drawHistogram($('hist'), results, startDate, [
-      { label: 50, period: p50 },
-      { label: 85, period: p85 },
-      { label: 95, period: p95 }
-    ]);
+      { label: 50, period: p50 }, { label: 85, period: p85 }, { label: 95, period: p95 }
+    ], 14);
+  }
+  $('runBtn').onclick = runBacklog;
+  renderChips();
+
+  /* ============================================================
+     TAB 2: EPICS
+     ============================================================ */
+  const splitRanges = { 100: [1, 1], 75: [1, 1.5], 50: [1, 2], 25: [1, 3] };
+  let epicThroughput = [3, 2, 4, 3, 2, 3];
+  let epicTrials = 10000;
+  let epicPeriodWeeks = 2;
+
+  $('epicStartDate').value = toISO(today);
+
+  // --- Epic rows ---
+  function addEpicRow(name, min, max, fam) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" class="ep-name" value="${name}" placeholder="Nazwa epiku"></td>
+      <td><input type="number" class="ep-min num" min="0" value="${min}"></td>
+      <td><input type="number" class="ep-max num" min="0" value="${max}"></td>
+      <td><select class="ep-fam">
+        <option value="100">100%</option><option value="75">75%</option>
+        <option value="50">50%</option><option value="25">25%</option>
+      </select></td>
+      <td><button class="row-del" title="Usuń">×</button></td>`;
+    tr.querySelector('.ep-fam').value = String(fam);
+    tr.querySelector('.row-del').onclick = () => tr.remove();
+    $('epicRows').appendChild(tr);
+  }
+  function readEpics() {
+    const epics = [];
+    $('epicRows').querySelectorAll('tr').forEach(tr => {
+      let mn = parseInt(tr.querySelector('.ep-min').value, 10);
+      let mx = parseInt(tr.querySelector('.ep-max').value, 10);
+      const fam = parseInt(tr.querySelector('.ep-fam').value, 10);
+      const name = tr.querySelector('.ep-name').value || 'Epik';
+      if (isNaN(mn)) mn = 0; if (isNaN(mx)) mx = mn;
+      if (mx < mn) { const tmp = mn; mn = mx; mx = tmp; }
+      epics.push({ name, min: mn, max: mx, fam });
+    });
+    return epics;
+  }
+  $('addEpic').onclick = () => addEpicRow('', 5, 15, 100);
+
+  // --- Epic throughput chips ---
+  function renderEpicChips() {
+    const wrap = $('epicChips');
+    wrap.innerHTML = '';
+    epicThroughput.forEach((v, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span>${v}</span>`;
+      const btn = document.createElement('button');
+      btn.textContent = '×'; btn.title = 'Usuń';
+      btn.onclick = () => { epicThroughput.splice(i, 1); renderEpicChips(); };
+      chip.appendChild(btn);
+      wrap.appendChild(chip);
+    });
+    const n = epicThroughput.length, sum = epicThroughput.reduce((a, b) => a + b, 0);
+    $('epStatCount').textContent = n;
+    $('epStatAvg').textContent = n ? (sum / n).toFixed(1) : '0';
+  }
+  function addEpicThroughput() {
+    const input = $('newEpicThroughput'), v = parseInt(input.value, 10);
+    if (!isNaN(v) && v >= 0) { epicThroughput.push(v); input.value = ''; renderEpicChips(); input.focus(); }
+  }
+  $('addEpicThroughput').onclick = addEpicThroughput;
+  $('newEpicThroughput').addEventListener('keydown', (e) => { if (e.key === 'Enter') addEpicThroughput(); });
+
+  $('periodGroup').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      [...$('periodGroup').children].forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      epicPeriodWeeks = parseInt(e.target.dataset.weeks, 10);
+    }
+  });
+  $('epicTrialsGroup').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      [...$('epicTrialsGroup').children].forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      epicTrials = parseInt(e.target.dataset.trials, 10);
+    }
+  });
+
+  // --- 12-month calendar ---
+  function buildCalendar() {
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const label = d.toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' });
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-transform:capitalize;">${label}</td>
+        <td><select class="cal-avail">
+          <option value="100">100%</option><option value="75">75%</option>
+          <option value="50">50%</option><option value="25">25%</option>
+        </select></td>
+        <td><input type="number" class="cal-cap num" min="0" max="100" value="100"></td>`;
+      $('calRows').appendChild(tr);
+    }
+  }
+  function readCalendar() {
+    const avail = [], cap = [];
+    $('calRows').querySelectorAll('tr').forEach(tr => {
+      avail.push(parseInt(tr.querySelector('.cal-avail').value, 10) / 100);
+      let c = parseInt(tr.querySelector('.cal-cap').value, 10);
+      if (isNaN(c)) c = 100;
+      cap.push(Math.max(0, Math.min(100, c)) / 100);
+    });
+    return { avail, cap };
   }
 
-  $('runBtn').onclick = run;
+  function monthsBetween(start, d) {
+    return (d.getFullYear() - start.getFullYear()) * 12 + (d.getMonth() - start.getMonth());
+  }
 
-  // Initial render
-  renderChips();
+  function simulateEpics(epics, data, periodDays, cal, n) {
+    const totals = new Array(n), periodsArr = new Array(n);
+    let capped = false;
+    for (let t = 0; t < n; t++) {
+      let total = 0;
+      for (const ep of epics) {
+        const base = ep.min + Math.random() * (ep.max - ep.min);
+        const [lo, hi] = splitRanges[ep.fam] || [1, 1];
+        const mult = lo + Math.random() * (hi - lo);
+        total += base * mult;
+      }
+      total = Math.round(total);
+      totals[t] = total;
+      let remaining = total, periods = 0;
+      const start = new Date($('epicStartDate').value);
+      while (remaining > 0 && periods < 2000) {
+        const dt = addDays(start, periods * periodDays);
+        let mi = monthsBetween(start, dt);
+        mi = Math.max(0, Math.min(cal.avail.length - 1, mi));
+        const factor = cal.avail[mi] * cal.cap[mi];
+        remaining -= sample(data) * factor;
+        periods++;
+      }
+      if (periods >= 2000) capped = true;
+      periodsArr[t] = periods;
+    }
+    totals.sort((a, b) => a - b);
+    periodsArr.sort((a, b) => a - b);
+    return { totals, periodsArr, capped };
+  }
+
+  function runEpics() {
+    const epics = readEpics();
+    const resultsEl = $('epicResults');
+    if (!epics.length) { resultsEl.innerHTML = '<div class="placeholder">Dodaj co najmniej jeden epik.</div>'; return; }
+    if (!epicThroughput.length || epicThroughput.every(v => v === 0)) {
+      resultsEl.innerHTML = '<div class="placeholder">Dodaj co najmniej jedną niezerową wartość tempa dostarczania.</div>'; return;
+    }
+    const cal = readCalendar();
+    if (cal.avail.every(a => a === 0) || cal.cap.every(c => c === 0)) {
+      resultsEl.innerHTML = '<div class="placeholder">Dostępność lub capacity nie mogą być zerowe we wszystkich miesiącach.</div>'; return;
+    }
+    const start = new Date($('epicStartDate').value);
+    const periodDays = epicPeriodWeeks * 7;
+    const { totals, periodsArr, capped } = simulateEpics(epics, epicThroughput, periodDays, cal, epicTrials);
+
+    const tp50 = percentile(totals, 0.50), tp85 = percentile(totals, 0.85), tp95 = percentile(totals, 0.95);
+    const pp50 = percentile(periodsArr, 0.50), pp85 = percentile(periodsArr, 0.85), pp95 = percentile(periodsArr, 0.95);
+    const d50 = addDays(start, pp50 * periodDays), d85 = addDays(start, pp85 * periodDays), d95 = addDays(start, pp95 * periodDays);
+    const wk = epicPeriodWeeks;
+
+    resultsEl.innerHTML = `
+      <div class="section-title">Łączna liczba elementów (${epics.length} ${epics.length === 1 ? 'epik' : 'epiki/-ów'})</div>
+      <div class="cards">
+        <div class="card p50"><div class="k">Prognoza (50%)</div><div class="v">${tp50}</div><div class="s">elementów</div></div>
+        <div class="card p85"><div class="k">85% (ostrożnie)</div><div class="v">${tp85}</div><div class="s">elementów</div></div>
+        <div class="card p95"><div class="k">95% (bardzo ostrożnie)</div><div class="v">${tp95}</div><div class="s">elementów</div></div>
+      </div>
+      <div class="section-title">Kiedy ukończymy wszystkie epiki</div>
+      <div class="cards">
+        <div class="card p50"><div class="k">50% prawdopodobieństwa</div><div class="v">${fmtDate(d50)}</div><div class="s">${pp50} okr. (${pp50 * wk} tyg.)</div></div>
+        <div class="card p85"><div class="k">85% prawdopodobieństwa</div><div class="v">${fmtDate(d85)}</div><div class="s">${pp85} okr. (${pp85 * wk} tyg.)</div></div>
+        <div class="card p95"><div class="k">95% prawdopodobieństwa</div><div class="v">${fmtDate(d95)}</div><div class="s">${pp95} okr. (${pp95 * wk} tyg.)</div></div>
+      </div>
+      <div class="section-title">Rozkład terminu ukończenia (${epicTrials.toLocaleString('pl-PL')} scenariuszy)</div>
+      <canvas id="epicHist"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:#4caf50"></span>50%</span>
+        <span><span class="dot" style="background:#ffb300"></span>85%</span>
+        <span><span class="dot" style="background:#ef5350"></span>95%</span>
+        <span>oś X: liczba okresów (${wk} tyg.) od daty rozpoczęcia</span>
+      </div>
+      ${capped ? '<p class="note" style="color:#ef5350;">Uwaga: niektóre scenariusze przekroczyły limit 2000 okresów — zweryfikuj tempo/kalendarz.</p>' : ''}
+      <p class="note">Model: liczba elementów każdego epiku = losowo z przedziału min–max × mnożnik niepewności zależny od znajomości (100%→×1,0; 75%→×1,0–1,5; 50%→×1,0–2,0; 25%→×1,0–3,0). Tempo (bootstrap) skalowane w każdym okresie przez dostępność × capacity danego miesiąca.</p>
+    `;
+    drawHistogram($('epicHist'), periodsArr, start, [
+      { label: 50, period: pp50 }, { label: 85, period: pp85 }, { label: 95, period: pp95 }
+    ], periodDays);
+  }
+  $('runEpicBtn').onclick = runEpics;
+
+  // Init epics tab defaults
+  addEpicRow('Epik A', 8, 20, 75);
+  addEpicRow('Epik B', 5, 12, 50);
+  addEpicRow('Epik C', 10, 25, 25);
+  renderEpicChips();
+  buildCalendar();
 })();
 </script>
 </body>
